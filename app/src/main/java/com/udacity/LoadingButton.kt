@@ -8,6 +8,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import kotlin.properties.Delegates
 
 class LoadingButton @JvmOverloads constructor(
@@ -18,6 +19,9 @@ class LoadingButton @JvmOverloads constructor(
     private var progressWidth = 0f
     private var progressAngle = 0f
     private var progressAnimator = ValueAnimator()
+
+    private var finishedLoadingColor = 0
+    private var finishedTextColor = 0
 
     private var buttonState: ButtonState by Delegates.observable(ButtonState.Completed) { _, _, new ->
         if (new == ButtonState.Loading) {
@@ -35,6 +39,11 @@ class LoadingButton @JvmOverloads constructor(
     init {
         isClickable = true
         buttonState = ButtonState.Completed
+
+        context.withStyledAttributes(attrs, R.styleable.LoadingButton) {
+            finishedLoadingColor = getColor(R.styleable.LoadingButton_finishedLoadingColor, 0)
+            finishedTextColor = getColor(R.styleable.LoadingButton_finishedTextColor, 0)
+        }
     }
 
     fun startDownload() {
@@ -57,10 +66,10 @@ class LoadingButton @JvmOverloads constructor(
         super.onDraw(canvas)
 
         if (buttonState == ButtonState.Completed) {
-            paint.color = ContextCompat.getColor(context, R.color.colorPrimary)
+            paint.color = finishedLoadingColor
             canvas?.drawRect(0f, heightSize.toFloat(), widthSize.toFloat(), 0f, paint)
 
-            paint.color = Color.WHITE
+            paint.color = finishedTextColor
             canvas?.drawText(
                 resources.getString(R.string.button_complete),
                 widthSize.toFloat() / 2, heightSize.toFloat() / 2 + heightSize.toFloat() / 8, paint
